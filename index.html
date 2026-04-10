@@ -25,14 +25,12 @@
         }
 
         body {
-            /* Fondo con la imagen PNG translúcida corregida */
             background-image: 
                 linear-gradient(rgba(244, 247, 249, 0.1), rgba(244, 247, 249, 0.85)), 
                 url('cocina.png');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            
             color: var(--text-dark);
             line-height: 1.6;
             display: flex;
@@ -135,7 +133,6 @@
         .breakdown-text { font-size: 0.85rem; color: #555; display: block; margin-top: 0.3rem; width: 100%; }
 
         .select-diametro { font-size: 1.1rem; color: var(--primary-blue); font-weight: bold; padding: 0.3rem 0.5rem; border: 2px solid var(--secondary-blue); border-radius: 4px; background-color: var(--white); cursor: pointer; width: auto; }
-        
         .alert-text { font-size: 0.85rem; font-weight: bold; display: block; width: 100%; text-align: right; margin-top: 0.3rem; }
 
         footer { text-align: center; padding: 1.5rem; font-size: 0.9rem; color: #666; border-top: 1px solid var(--border-color); background-color: var(--white); margin-top: auto; }
@@ -158,21 +155,18 @@
     <div class="container">
         <div class="card">
             <h2>1. Definición del Equipo</h2>
-            
             <div class="form-group">
                 <label for="modeloCampana">Modelo de Campana</label>
                 <select id="modeloCampana" required>
                     <option value="">-- Cargando datos... --</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label for="medidaCampana">Medidas Disponibles (L x W)</label>
                 <select id="medidaCampana" disabled required>
                     <option value="">-- Selecciona modelo primero --</option>
                 </select>
             </div>
-
             <div id="productCard" class="product-card">
                 <p><strong>Ref:</strong> <span id="prodCode"></span></p>
                 <p><strong>Descripción:</strong> <span id="prodDesc"></span></p>
@@ -185,48 +179,39 @@
         <div class="card">
             <h2>2. Parámetros de Instalación</h2>
             <form id="calcForm">
-                
                 <div class="form-group">
                     <label for="altura">Altura de campana a zona cocción (m)</label>
                     <input type="number" id="altura" step="0.01" min="0.1" placeholder="Ej: 1.2" required disabled>
                 </div>
-
                 <div id="infoCoccion" class="info-badge">
                     <strong>Tipo de Cocción (Automático)</strong>
                     <span id="txtCoccion"></span>
                 </div>
-
                 <div id="infoAportacion" class="info-badge">
                     <strong>Sistema de Aportación (Automático)</strong>
                     <span id="txtAportacion"></span>
                 </div>
-
                 <div class="form-group" style="margin-top: 1.5rem;">
                     <label for="longitud">Longitud de conducto estimada (m) - Opcional</label>
                     <input type="number" id="longitud" step="1" min="0" placeholder="Ej: 15" disabled>
                 </div>
-
                 <div class="form-group">
                     <label for="piezas">Codos y Te's (nº) - Opcional</label>
                     <input type="number" id="piezas" step="1" min="0" placeholder="Ej: 3" disabled>
                 </div>
-
                 <button type="submit" id="btnCalcular" disabled>Calcular Caudales y Tubo</button>
             </form>
 
             <div id="resultados" class="results-box">
                 <h3 style="color: var(--success-green); margin-bottom: 1rem; font-size: 1.2rem;">✓ Cálculo de Ingeniería</h3>
-                
                 <div class="result-item">
                     <span class="label">Caudal de Extracción (V):</span>
                     <span class="value" id="resExtraccion">0 m³/h</span>
                 </div>
-
                 <div id="filaAportacion" class="result-item" style="display:none;">
                     <span class="label">Caudal Aportación Exterior:</span>
                     <span class="value" id="resAportacion">0 m³/h</span>
                 </div>
-
                 <div class="result-item">
                     <span class="label">Tubo Helicoidal (Modificable):</span>
                     <select id="selectDiametro" class="select-diametro"></select>
@@ -236,7 +221,6 @@
                         <span id="alertaVelocidad" class="alert-text"></span>
                     </div>
                 </div>
-
                 <div id="contenedorPerdida" class="result-item" style="border:none; padding-bottom:0; display:block;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span class="label">Pérdida de Carga Est.:</span>
@@ -253,8 +237,7 @@
     </footer>
 
     <script>
-        // --- 1. DATOS INCRUSTADOS ---
-        const diametrosEstandar = [100, 125, 150, 175, 200, 250, 300, 355, 400, 450, 500, 560, 600, 630, 710, 750, 800, 900, 1000, 1120, 1200, 1250];
+        const diametrosEstandar = [100, 125, 150, 175, 200, 250, 300, 315, 355, 400, 450, 500, 560, 600, 630, 710, 750, 800, 900, 1000, 1120, 1200, 1250];
 
         const csvData = `Cod. Art.;Descripción Articulo;P.V.P
 KF11020;CAMPANA INDUSTRIAL MUNDOFAN MODELO DG EXCLUSIVE 1000X800X450;585
@@ -622,7 +605,6 @@ KF11992;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X1500MM;9618,33
 KF11993;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X2000MM;10453,61
 KF11994;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X2800MM;12784,6`;
 
-        // --- 2. LÓGICA DE LA APLICACIÓN ---
         let catalogo = [];
         let modelosAgrupados = {};
         let productoSeleccionado = null;
@@ -635,45 +617,36 @@ KF11994;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X2800MM;12784,6`;
         const inputLongitud = document.getElementById('longitud');
         const inputPiezas = document.getElementById('piezas');
         const selectDiametro = document.getElementById('selectDiametro');
-        const contenedorPerdida = document.getElementById('contenedorPerdida'); // Instancia para ocultar
+        const contenedorPerdida = document.getElementById('contenedorPerdida');
 
         function procesarCatalogo(csvDataStr) {
             const lineas = csvDataStr.split('\n');
             for(let i = 1; i < lineas.length; i++) {
                 const linea = lineas[i].trim();
                 if(!linea) continue;
-
                 const partes = linea.split(';');
                 if(partes.length < 3) continue;
-
                 const cod = partes[0].trim();
                 const desc = partes[1].trim();
                 const pvp = partes[2].trim();
-
                 const regexMedida = /(\d+)\s*[xX]\s*(\d+)(?:\s*[xX]\s*(\d+))?/i;
                 const match = desc.match(regexMedida);
-                
                 if(match) {
                     const L = parseInt(match[1]); 
                     const W = parseInt(match[2]); 
-                    
                     const esCentral = desc.toUpperCase().includes('CENTRAL') || desc.toUpperCase().includes('ISLA');
                     const tipo = esCentral ? 'central' : 'mural';
                     const perimetro = esCentral ? ((2 * L) + (2 * W)) / 1000 : (L + (2 * W)) / 1000;
-
                     let esGranProduccion = false;
                     let esVahos = false;
                     let porcentajeAportacion = 0;
                     let textoAportacion = "";
-
                     const descUpper = desc.toUpperCase();
-                    
                     if(descUpper.includes('LAMBDA') || descUpper.includes('KAPPA') || descUpper.includes('OMNICRON')) {
                         esGranProduccion = true;
                     } else if (descUpper.includes('OMEGA')) {
                         esVahos = true;
                     }
-
                     if(descUpper.includes('DELTA') || descUpper.includes('INDUCTORA')) {
                         porcentajeAportacion = 0.55;
                         textoAportacion = "Sistema Inductor (55% de compensación)";
@@ -681,29 +654,13 @@ KF11994;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X2800MM;12784,6`;
                         porcentajeAportacion = 0.75;
                         textoAportacion = "Sistema Compensado (75% de compensación)";
                     }
-
                     let nombreModelo = desc.substring(0, match.index).trim();
                     nombreModelo = nombreModelo.replace(/CAMPANA /i, '').replace(/INDUSTRIAL /i, '').replace(/MUNDOFAN /i, '').replace(/MODELO /i, '').replace(/CON CORTINA DE AIRE PERIMETRAL DE PARED /i,'').replace(/CON CORTINA DE AIRE PERIMETRAL CENTRAL /i,'').replace(/MURAL /i,'').trim();
-
                     const producto = {
-                        codigo: cod,
-                        descripcion: desc,
-                        pvp: pvp,
-                        medidaStr: match[0].toUpperCase(),
-                        tipo: tipo,
-                        perimetro: perimetro,
-                        nombreModelo: nombreModelo,
-                        esGranProduccion: esGranProduccion,
-                        esVahos: esVahos,
-                        porcentajeAportacion: porcentajeAportacion,
-                        textoAportacion: textoAportacion
+                        codigo: cod, descripcion: desc, pvp: pvp, medidaStr: match[0].toUpperCase(), tipo: tipo, perimetro: perimetro, nombreModelo: nombreModelo, esGranProduccion: esGranProduccion, esVahos: esVahos, porcentajeAportacion: porcentajeAportacion, textoAportacion: textoAportacion
                     };
-
                     catalogo.push(producto);
-
-                    if(!modelosAgrupados[nombreModelo]) {
-                        modelosAgrupados[nombreModelo] = [];
-                    }
+                    if(!modelosAgrupados[nombreModelo]) { modelosAgrupados[nombreModelo] = []; }
                     modelosAgrupados[nombreModelo].push(producto);
                 }
             }
@@ -727,13 +684,11 @@ KF11994;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X2800MM;12784,6`;
             document.getElementById('infoCoccion').classList.remove('active');
             document.getElementById('infoAportacion').classList.remove('active');
             document.getElementById('resultados').classList.remove('active');
-            
             btnCalcular.disabled = true;
             inputAltura.disabled = true;
             inputLongitud.disabled = true;
             inputPiezas.disabled = true;
             productoSeleccionado = null;
-
             if(modeloStr) {
                 selectMedida.disabled = false;
                 modelosAgrupados[modeloStr].forEach((prod, index) => {
@@ -742,9 +697,7 @@ KF11994;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X2800MM;12784,6`;
                     option.textContent = prod.medidaStr + (prod.tipo === 'central' ? ' (CENTRAL)' : ' (MURAL)');
                     selectMedida.appendChild(option);
                 });
-            } else {
-                selectMedida.disabled = true;
-            }
+            } else { selectMedida.disabled = true; }
         });
 
         selectMedida.addEventListener('change', function() {
@@ -752,42 +705,31 @@ KF11994;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X2800MM;12784,6`;
             if(index !== "") {
                 const modeloStr = selectModelo.value;
                 productoSeleccionado = modelosAgrupados[modeloStr][index];
-                
                 document.getElementById('prodCode').textContent = productoSeleccionado.codigo;
                 document.getElementById('prodDesc').textContent = productoSeleccionado.descripcion;
                 document.getElementById('prodTipo').textContent = productoSeleccionado.tipo === 'central' ? 'Isla / Central' : 'Mural / Pared';
                 document.getElementById('prodPerimetro').textContent = productoSeleccionado.perimetro.toFixed(2);
                 document.getElementById('prodPvp').textContent = productoSeleccionado.pvp;
-                
                 document.getElementById('productCard').classList.add('active');
-                
                 inputAltura.disabled = false;
                 inputLongitud.disabled = false;
                 inputPiezas.disabled = false;
                 btnCalcular.disabled = false;
-
                 const infoCoccion = document.getElementById('infoCoccion');
                 const txtCoccion = document.getElementById('txtCoccion');
-                
                 if(productoSeleccionado.esGranProduccion) {
                     txtCoccion.innerHTML = "Equipamiento de <b>Gran Producción</b> (K=0.35 m/s).";
                     infoCoccion.classList.add('active');
                 } else if(productoSeleccionado.esVahos) {
                     txtCoccion.innerHTML = "Equipamiento para <b>Vahos/Lavado</b> (Campana sin filtros).";
                     infoCoccion.classList.add('active');
-                } else {
-                    infoCoccion.classList.remove('active');
-                }
-
+                } else { infoCoccion.classList.remove('active'); }
                 const infoAportacion = document.getElementById('infoAportacion');
                 const txtAportacion = document.getElementById('txtAportacion');
                 if(productoSeleccionado.porcentajeAportacion > 0) {
                     txtAportacion.innerHTML = productoSeleccionado.textoAportacion;
                     infoAportacion.classList.add('active');
-                } else {
-                    infoAportacion.classList.remove('active');
-                }
-
+                } else { infoAportacion.classList.remove('active'); }
             } else {
                 document.getElementById('productCard').classList.remove('active');
                 btnCalcular.disabled = true;
@@ -795,108 +737,88 @@ KF11994;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X2800MM;12784,6`;
             }
         });
 
-        function obtenerDiametroComercial(calculadoEnMilimetros) {
-            for (let i = 0; i < diametrosEstandar.length; i++) {
-                if (diametrosEstandar[i] >= calculadoEnMilimetros) {
-                    return diametrosEstandar[i];
-                }
-            }
-            return Math.ceil(calculadoEnMilimetros);
-        }
-
         function actualizarCalculosSecundarios() {
             if(!caudalExtraccionGlobal) return;
-
             const diametroElegidoMM = parseFloat(selectDiametro.value);
             const longitud = parseFloat(inputLongitud.value) || 0;
             const piezas = parseInt(inputPiezas.value) || 0;
-
             const caudalSegundos = caudalExtraccionGlobal / 3600;
             const radioM = (diametroElegidoMM / 2) / 1000;
             const areaRealM2 = Math.PI * (radioM * radioM);
             const velocidadReal = caudalSegundos / areaRealM2;
-
             const spanVelocidad = document.getElementById('resVelocidad');
             const alertaVelocidad = document.getElementById('alertaVelocidad');
-            
             spanVelocidad.innerText = velocidadReal.toFixed(1) + ' m/s';
 
-            // --- LÓGICA DE VALIDACIÓN DE VELOCIDAD ---
-            if (velocidadReal < 5.0 || velocidadReal > 16.0) {
-                // Zona ROJA (No viable) -> Oculta los cálculos de pérdida
+            // --- LÓGICA DE VALIDACIÓN ACTUALIZADA 8-11 m/s ---
+            if (velocidadReal < 6.0 || velocidadReal > 16.0) {
                 spanVelocidad.style.color = 'var(--accent-red)';
                 alertaVelocidad.innerText = "Esta instalación no es viable modifique datos";
                 alertaVelocidad.style.color = 'var(--accent-red)';
                 contenedorPerdida.style.display = 'none'; 
             } else {
-                // Zonas válidas -> Mostrar y calcular la pérdida
                 contenedorPerdida.style.display = 'block';
-
-                if (velocidadReal >= 8.0 && velocidadReal <= 12.0) {
-                    // Zona VERDE (Óptima)
+                if (velocidadReal >= 8.0 && velocidadReal <= 11.0) {
                     spanVelocidad.style.color = 'var(--success-green)';
                     alertaVelocidad.innerText = "la instalación es apta";
                     alertaVelocidad.style.color = 'var(--success-green)';
                 } else {
-                    // Zona NARANJA (Entre 5-8 o 12-16)
                     spanVelocidad.style.color = 'var(--warning-orange)';
                     alertaVelocidad.innerText = "Instalación no recomendada";
                     alertaVelocidad.style.color = 'var(--warning-orange)';
                 }
-
-                // Cálculo Físico de Pérdida de Carga 
-                const factorVelocidad = Math.pow(velocidadReal / 9, 2);
-
-                const perdidaFiltros = productoSeleccionado.esVahos ? 50 : 40; 
+                const factorVelocidad = Math.pow(velocidadReal / 10, 2);
+                const perdidaFiltros = productoSeleccionado.esVahos ? 10 : 40; 
                 const perdidaConducto = (longitud * 1.5) * factorVelocidad; 
                 const perdidaPiezas = (piezas * 10) * factorVelocidad; 
                 const perdidaSombrerete = 30 * factorVelocidad; 
-                
                 const perdidaBase = perdidaFiltros + perdidaConducto + perdidaPiezas + perdidaSombrerete;
                 const perdidaTotal = perdidaBase * 1.10; 
-
                 document.getElementById('resPerdida').innerText = Math.round(perdidaTotal) + ' Pa';
                 document.getElementById('resDesglosePerdida').innerText = 
-                    `(Filtros: ${perdidaFiltros}Pa + Tubo: ${Math.round(perdidaConducto)}Pa + Codos/Tes: ${Math.round(perdidaPiezas)}Pa + Sombrerete: ${Math.round(perdidaSombrerete)}Pa) + 10% margen`;
+                    `(Filtros: ${perdidaFiltros}Pa + Dinámica conducto y piezas) + 10% margen`;
             }
         }
 
         document.getElementById('calcForm').addEventListener('submit', function(e) {
             e.preventDefault();
             if(!productoSeleccionado) return;
-
             const altura = parseFloat(inputAltura.value);
-            
-            let K = 0.30; 
-            if (productoSeleccionado.esGranProduccion) {
-                K = 0.35; 
-            } else {
-                K = productoSeleccionado.tipo === 'mural' ? 0.30 : 0.25;
-            }
-
+            let K = productoSeleccionado.esGranProduccion ? 0.35 : (productoSeleccionado.tipo === 'mural' ? 0.30 : 0.25);
             caudalExtraccionGlobal = productoSeleccionado.perimetro * altura * K * 3600;
 
-            let caudalAportacion = 0;
             if(productoSeleccionado.porcentajeAportacion > 0) {
-                caudalAportacion = caudalExtraccionGlobal * productoSeleccionado.porcentajeAportacion;
+                const caudalAportacion = caudalExtraccionGlobal * productoSeleccionado.porcentajeAportacion;
                 document.getElementById('filaAportacion').style.display = 'flex';
                 document.getElementById('resAportacion').innerText = Math.round(caudalAportacion).toLocaleString('es-ES') + ' m³/h';
-            } else {
-                document.getElementById('filaAportacion').style.display = 'none';
-            }
+            } else { document.getElementById('filaAportacion').style.display = 'none'; }
 
             const caudalSegundos = caudalExtraccionGlobal / 3600;
-            const areaM2 = caudalSegundos / 9; 
-            const radioM = Math.sqrt(areaM2 / Math.PI);
-            const diametroMatematicoMM = radioM * 2 * 1000;
-            const diametroComercial = obtenerDiametroComercial(diametroMatematicoMM);
+
+            // LÓGICA: Buscar el diámetro MÁS PEQUEÑO que dé entre 8 y 11 m/s
+            let dComercial = null;
+            for (let i = 0; i < diametrosEstandar.length; i++) {
+                const d = diametrosEstandar[i];
+                const area = Math.PI * Math.pow((d / 2) / 1000, 2);
+                const v = caudalSegundos / area;
+                if (v <= 11.0) { dComercial = d; break; }
+            }
+
+            if (!dComercial || (caudalSegundos / (Math.PI * Math.pow((dComercial / 2) / 1000, 2))) < 8.0) {
+                let mejorDif = 999;
+                diametrosEstandar.forEach(d => {
+                    const v = caudalSegundos / (Math.PI * Math.pow((d / 2) / 1000, 2));
+                    const dif = Math.abs(v - 10);
+                    if (dif < mejorDif) { mejorDif = dif; dComercial = d; }
+                });
+            }
 
             selectDiametro.innerHTML = '';
             diametrosEstandar.forEach(diam => {
                 const option = document.createElement('option');
                 option.value = diam;
                 option.textContent = 'Ø ' + diam + ' mm';
-                if (diam === diametroComercial) {
+                if (diam === dComercial) {
                     option.selected = true;
                     option.textContent += ' (Óptimo recomendado)';
                 }
@@ -904,13 +826,11 @@ KF11994;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X2800MM;12784,6`;
             });
 
             document.getElementById('resExtraccion').innerText = Math.round(caudalExtraccionGlobal).toLocaleString('es-ES') + ' m³/h';
-            
             document.getElementById('resultados').classList.add('active');
             actualizarCalculosSecundarios();
         });
 
         selectDiametro.addEventListener('change', actualizarCalculosSecundarios);
-
         window.addEventListener('DOMContentLoaded', () => {
             procesarCatalogo(csvData);
             inicializarUI();
