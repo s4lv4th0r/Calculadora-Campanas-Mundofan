@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Ventilación Mundofan | Salvador Escoda S.A.</title>
+    <style>
+        :root {
+            --primary-blue: #0A3A6A; 
+            --secondary-blue: #1C5A96;
+            --accent-red: #D32F2F; 
+            --bg-light: #F4F7F9;
+            --text-dark: #2C3E50;
+            --white: #FFFFFF;
+            --border-color: #E0E6ED;
+            --success-green: #2E7D32;
+            --warning-orange: #F57C00;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            /* Fondo con la imagen PNG translúcida corregida */
+            background-image: 
+                linear-gradient(rgba(244, 247, 249, 0.1), rgba(244, 247, 249, 0.85)), 
+                url('cocina.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            padding: 1.5rem 1rem;
+            border-bottom: 4px solid var(--accent-red);
+        }
+
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-text h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+        }
+
+        .header-text p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .logo-img {
+            max-height: 70px;
+            background-color: var(--white);
+            padding: 5px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            flex-grow: 1;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .card h2 {
+            color: var(--primary-blue);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            border-bottom: 2px solid var(--bg-light);
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.95rem; }
+        select, input[type="number"] { width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem; background-color: var(--white); }
+        select:focus, input[type="number"]:focus { outline: none; border-color: var(--secondary-blue); box-shadow: 0 0 0 2px rgba(28, 90, 150, 0.2); }
+
+        .info-badge { background-color: #E8F0FE; color: var(--secondary-blue); padding: 0.8rem; border-radius: 4px; font-size: 0.9rem; margin-bottom: 1rem; border-left: 4px solid var(--secondary-blue); display: none; }
+        .info-badge.active { display: block; animation: fadeIn 0.3s ease-in; }
+        .info-badge strong { display: block; color: var(--primary-blue); margin-bottom: 0.2rem; }
+
+        .product-card { background-color: #F8F9FA; border: 1px solid var(--border-color); border-radius: 6px; padding: 1.2rem; margin-bottom: 1.5rem; display: none; }
+        .product-card.active { display: block; animation: fadeIn 0.3s ease-in; }
+        .product-card p { margin-bottom: 0.5rem; font-size: 0.95rem; }
+        .price-tag { font-size: 1.2rem; color: var(--accent-red); font-weight: bold; display: inline-block; margin-top: 0.5rem; }
+
+        button { background-color: var(--secondary-blue); color: var(--white); border: none; padding: 1rem; width: 100%; font-size: 1.1rem; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; margin-top: 1rem; }
+        button:hover:not(:disabled) { background-color: var(--primary-blue); }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        .results-box { display: none; background-color: #f0fdf4; border: 1px solid #bbf7d0; border-left: 5px solid var(--success-green); padding: 1.5rem; margin-top: 1.5rem; border-radius: 4px; }
+        .results-box.active { display: block; animation: fadeIn 0.5s ease-in; }
+        .result-item { margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #ccc; padding-bottom: 0.4rem; flex-wrap: wrap; }
+        .result-item span.label { font-weight: 600; font-size: 0.95rem; }
+        .result-item span.value { font-size: 1.2rem; color: var(--success-green); font-weight: bold; }
+        .breakdown-text { font-size: 0.85rem; color: #555; display: block; margin-top: 0.3rem; width: 100%; }
+
+        .select-diametro { font-size: 1.1rem; color: var(--primary-blue); font-weight: bold; padding: 0.3rem 0.5rem; border: 2px solid var(--secondary-blue); border-radius: 4px; background-color: var(--white); cursor: pointer; width: auto; }
+        
+        .alert-text { font-size: 0.85rem; font-weight: bold; display: block; width: 100%; text-align: right; margin-top: 0.3rem; }
+
+        footer { text-align: center; padding: 1.5rem; font-size: 0.9rem; color: #666; border-top: 1px solid var(--border-color); background-color: var(--white); margin-top: auto; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <div class="header-text">
+                <h1>Calculadora de campanas Mundofan</h1>
+                <p>Cálculo de extracción inteligente.</p>
+            </div>
+            <img src="Mundofan_Logo.jpg" alt="Mundofan Logo" class="logo-img" onerror="this.style.display='none'">
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>1. Definición del Equipo</h2>
+            
+            <div class="form-group">
+                <label for="modeloCampana">Modelo de Campana</label>
+                <select id="modeloCampana" required>
+                    <option value="">-- Cargando datos... --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="medidaCampana">Medidas Disponibles (L x W)</label>
+                <select id="medidaCampana" disabled required>
+                    <option value="">-- Selecciona modelo primero --</option>
+                </select>
+            </div>
+
+            <div id="productCard" class="product-card">
+                <p><strong>Ref:</strong> <span id="prodCode"></span></p>
+                <p><strong>Descripción:</strong> <span id="prodDesc"></span></p>
+                <p><strong>Instalación:</strong> <span id="prodTipo"></span></p>
+                <p><strong>Perímetro Libre:</strong> <span id="prodPerimetro"></span> m</p>
+                <div class="price-tag">P.V.P: <span id="prodPvp"></span> €</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>2. Parámetros de Instalación</h2>
+            <form id="calcForm">
+                
+                <div class="form-group">
+                    <label for="altura">Altura de campana a zona cocción (m)</label>
+                    <input type="number" id="altura" step="0.01" min="0.1" placeholder="Ej: 1.2" required disabled>
+                </div>
+
+                <div id="infoCoccion" class="info-badge">
+                    <strong>Tipo de Cocción (Automático)</strong>
+                    <span id="txtCoccion"></span>
+                </div>
+
+                <div id="infoAportacion" class="info-badge">
+                    <strong>Sistema de Aportación (Automático)</strong>
+                    <span id="txtAportacion"></span>
+                </div>
+
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <label for="longitud">Longitud de conducto estimada (m) - Opcional</label>
+                    <input type="number" id="longitud" step="1" min="0" placeholder="Ej: 15" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label for="piezas">Codos y Te's (nº) - Opcional</label>
+                    <input type="number" id="piezas" step="1" min="0" placeholder="Ej: 3" disabled>
+                </div>
+
+                <button type="submit" id="btnCalcular" disabled>Calcular Caudales y Tubo</button>
+            </form>
+
+            <div id="resultados" class="results-box">
+                <h3 style="color: var(--success-green); margin-bottom: 1rem; font-size: 1.2rem;">✓ Cálculo de Ingeniería</h3>
+                
+                <div class="result-item">
+                    <span class="label">Caudal de Extracción (V):</span>
+                    <span class="value" id="resExtraccion">0 m³/h</span>
+                </div>
+
+                <div id="filaAportacion" class="result-item" style="display:none;">
+                    <span class="label">Caudal Aportación Exterior:</span>
+                    <span class="value" id="resAportacion">0 m³/h</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="label">Tubo Helicoidal (Modificable):</span>
+                    <select id="selectDiametro" class="select-diametro"></select>
+                    <div style="width: 100%; border-top: 1px dashed #ccc; margin-top: 0.5rem; padding-top: 0.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                        <span class="label" style="font-size: 0.9rem; color:#555;">Velocidad del aire resultante:</span>
+                        <span class="value" id="resVelocidad" style="font-size: 1.1rem;">0 m/s</span>
+                        <span id="alertaVelocidad" class="alert-text"></span>
+                    </div>
+                </div>
+
+                <div id="contenedorPerdida" class="result-item" style="border:none; padding-bottom:0; display:block;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="label">Pérdida de Carga Est.:</span>
+                        <span class="value" id="resPerdida" style="color: var(--text-dark); font-size:1.2rem;">0 Pa</span>
+                    </div>
+                    <span class="breakdown-text" id="resDesglosePerdida"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 Calculadora de campanas Mundofan. Herramienta de autoría y desarrollo por <strong>Jordi Salvador Noya</strong>.
+    </footer>
+
+    <script>
+        // --- 1. DATOS INCRUSTADOS ---
+        const diametrosEstandar = [100, 125, 150, 175, 200, 250, 300, 355, 400, 450, 500, 560, 600, 630, 710, 750, 800, 900, 1000, 1120, 1200, 1250];
+
+        const csvData = `Cod. Art.;Descripción Articulo;P.V.P
+KF11020;CAMPANA INDUSTRIAL MUNDOFAN MODELO DG EXCLUSIVE 1000X800X450;585
+KF11021;CAMPANA INDUSTRIAL MUNDOFAN MODELO DG EXCLUSIVE 1500X800X450;798
+KF11022;CAMPANA INDUSTRIAL MUNDOFAN MODELO DG EXCLUSIVE 2000X800X450;975
+KF11023;CAMPANA MURAL IC EXCLUSIVE CON VENTILADOR 1000X800X680;1145
+KF11024;CAMPANA MURAL IC EXCLUSIVE CON VENTILADOR 1500X800X680;1529
+KF11025;CAMPANA MURAL IC EXCLUSIVE CON VENTILADOR 2000X800X680;1943
+KF11100;CAMPANA BAJA SILUETA TAU PARED 1000X750;922,64
+KF11101;CAMPANA BAJA SILUETA TAU PARED 1000X1200;1080,7
+KF11102;CAMPANA BAJA SILUETA TAU PARED 1500X750;1072,99
+KF11103;CAMPANA BAJA SILUETA TAU PARED 1500X1200;1263,17
+KF11104;CAMPANA BAJA SILUETA TAU PARED 2000X750;1225,9
+KF11105;CAMPANA BAJA SILUETA TAU PARED 2000X1200;1452,06
+KF11106;CAMPANA BAJA SILUETA TAU PARED 2500X750;1551,01
+KF11107;CAMPANA BAJA SILUETA TAU PARED 2500X1200;1808,01
+KF11108;CAMPANA BAJA SILUETA TAU PARED 3000X750;1923,66
+KF11109;CAMPANA BAJA SILUETA TAU PARED 3000X1200;2261,62
+KF11110;CAMPANA BAJA SILUETA TAU PARED 3500X750;2077,87
+KF11111;CAMPANA BAJA SILUETA TAU PARED 3500X1200;2450,52
+KF11112;CAMPANA BAJA SILUETA TAU PARED 4000X750;2230,78
+KF11113;CAMPANA BAJA SILUETA TAU PARED 4000X1200;2639,42
+KF11114;CAMPANA BAJA SILUETA TAU PARED 4500X750;2555,89
+KF11115;CAMPANA BAJA SILUETA TAU PARED 4500X1200;2995,37
+KF11116;CAMPANA BAJA SILUETA TAU PARED 5000X750;2879,71
+KF11117;CAMPANA BAJA SILUETA TAU PARED 5000X1200;3351,31
+KF11120;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 1000X750;1089,69
+KF11121;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 1000X1200;1254,17
+KF11122;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 1500X750;1273,45
+KF11123;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 1500X1200;1472,62
+KF11124;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 2000X750;1466,2
+KF11125;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 2000X1200;1689,79
+KF11126;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 2500X750;1832,43
+KF11127;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 2500X1200;2089,43
+KF11128;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 3000X750;2280,9
+KF11129;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 3000X1200;2521,2
+KF11130;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 3500X750;2481,36
+KF11131;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 3500X1200;2742,22
+KF11132;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 4000X750;2667,69
+KF11133;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 4000X1200;2959,39
+KF11134;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 4500X750;3033,92
+KF11135;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 4500X1200;3360,31
+KF11136;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 5000X750;3400,14
+KF11137;CAMPANA BAJA SILUETA REVERSIBLE RHO PARED 5000X1200;3759,95
+KF11138;CAMPANA BAJA SILUETA TAU MONOBLOC PARED 1000X750;1583,14
+KF11139;CAMPANA BAJA SILUETA TAU MONOBLOC PARED 1000X1200;1747,62
+KF11140;CAMPANA BAJA SILUETA TAU MONOBLOC PARED 1500X750;1739,91
+KF11141;CAMPANA BAJA SILUETA TAU MONOBLOC PARED 1500X1200;1937,8
+KF11142;CAMPANA BAJA SILUETA TAU MONOBLOC PARED 2000X750;1899,25
+KF11143;CAMPANA BAJA SILUETA TAU MONOBLOC PARED 2000X1200;2134,41
+KF11144;CAMPANA BAJA SILUETA TAU MONOBLOC PARED 2500X750;2237,21
+KF11145;CAMPANA BAJA SILUETA TAU MONOBLOC PARED 2500X1200;2505,78
+KF11297;CAMPANA ALFA PARED 1000x750x500;1308,15
+KF11298;CAMPANA ALFA PARED 1000x900x500;1435,36
+KF11299;CAMPANA ALFA PARED 1200x750x500;1443,07
+KF11300;CAMPANA ALFA PARED 1200x900x500;1488,05
+KF11301;CAMPANA ALFA PARED 1200x1100x500;1506,04
+KF11302;CAMPANA ALFA PARED 1200x1350x500;1926,24
+KF11303;CAMPANA ALFA PARED 1500x750x500;1565,15
+KF11304;CAMPANA ALFA PARED 1500x900x500;1630,68
+KF11305;CAMPANA ALFA PARED 1500x1100x500;1666,67
+KF11306;CAMPANA ALFA PARED 1500x1350x500;2070,16
+KF11307;CAMPANA ALFA PARED 2000x750x500;1849,14
+KF11308;CAMPANA ALFA PARED 2000x900x500;1944,23
+KF11309;CAMPANA ALFA PARED 2000x1100x500;1989,21
+KF11310;CAMPANA ALFA PARED 2000x1350x500;2391,41
+KF11311;CAMPANA ALFA PARED 2500x750x500;2313,03
+KF11312;CAMPANA ALFA PARED 2500x900x500;2378,56
+KF11313;CAMPANA ALFA PARED 2500x1100x500;2455,66
+KF11314;CAMPANA ALFA PARED 2500x1350x500;2863,01
+KF11320;CAMPANA ALFA CENTRAL 1500x1400x500;2486,51
+KF11321;CAMPANA ALFA CENTRAL 1500x2100x500;2742,22
+KF11322;CAMPANA ALFA CENTRAL 2000x1400x500;2967,1
+KF11323;CAMPANA ALFA CENTRAL 2000x2100x500;3370,59
+KF11324;CAMPANA ALFA CENTRAL 2500x1400x500;3491,39
+KF11325;CAMPANA ALFA CENTRAL 2500x2100x500;3867,89
+KF11326;CAMPANA BETA PARED 1500x750;1924,95
+KF11327;CAMPANA BETA PARED 1000x750;1597,28
+KF11328;CAMPANA BETA PARED 1000x900;1747,62
+KF11329;CAMPANA BETA PARED 1200x750;1667,95
+KF11330;CAMPANA BETA PARED 1200x900;1790,03
+KF11331;CAMPANA BETA PARED 1200x1100;1827,29
+KF11332;CAMPANA BETA PARED 1200x1350;2193,52
+KF11333;CAMPANA BETA PARED 1500x900;1973,78
+KF11334;CAMPANA BETA PARED 1500x1100;2005,91
+KF11335;CAMPANA BETA PARED 1500x1350;2406,83
+KF11336;CAMPANA BETA PARED 2000x750;2251,35
+KF11337;CAMPANA BETA PARED 2000x900;2390,13
+KF11338;CAMPANA BETA PARED 2000x1100;2429,96
+KF11339;CAMPANA BETA PARED 2000x1350;2915,7
+KF11340;CAMPANA BETA PARED 2500x750;2674,12
+KF11341;CAMPANA BETA PARED 2500x900;2846,31
+KF11342;CAMPANA BETA PARED 2500x1100;2902,85
+KF11343;CAMPANA BETA PARED 2500x1350;3483,68
+KF11344;CAMPANA BETA PARED 3000x750;3351,32
+KF11345;CAMPANA BETA PARED 3000x900;3590,33
+KF11346;CAMPANA BETA PARED 3000x1100;3643,02
+KF11347;CAMPANA BETA PARED 3000x1350;4371,62
+KF11348;CAMPANA BETA PARED 4000x750;4122,33
+KF11349;CAMPANA BETA PARED 4000x900;4464,14
+KF11350;CAMPANA BETA PARED 4000x1100;4491,13
+KF11351;CAMPANA BETA PARED 4000x1350;5389,36
+KF11352;CAMPANA BETA PARED 5000x750;5001,28
+KF11353;CAMPANA BETA PARED 5000x900;5606,52
+KF11354;CAMPANA BETA PARED 5000x1100;5753,02
+KF11355;CAMPANA BETA PARED 5000x1350;6799,02
+KF11371;CAMPANA BETA CENTRAL 1500x1400;3107,17
+KF11372;CAMPANA BETA CENTRAL 1500x2100;3335,9
+KF11373;CAMPANA BETA CENTRAL 2000x1400;3653,3
+KF11374;CAMPANA BETA CENTRAL 2000x2100;4097,91
+KF11375;CAMPANA BETA CENTRAL 2500x1400;4338,21
+KF11376;CAMPANA BETA CENTRAL 2500x2100;4689,02
+KF11377;CAMPANA BETA CENTRAL 3000x1400;5659,21
+KF11378;CAMPANA BETA CENTRAL 3000x2100;6121,82
+KF11379;CAMPANA BETA CENTRAL 3500x1400;5976,61
+KF11380;CAMPANA BETA CENTRAL 3500x2100;6834,99
+KF11381;CAMPANA BETA CENTRAL 4000x1400;6655,1
+KF11382;CAMPANA BETA CENTRAL 4000x2100;7546,9
+KF11383;CAMPANA BETA CENTRAL 5000x1400;8150,84
+KF11384;CAMPANA BETA CENTRAL 5000x2100;9135,16
+KF11391;CAMPANA GAMMA PARED 1000x750;1831,15
+KF11392;CAMPANA GAMMA PARED 1000x900;2011,05
+KF11393;CAMPANA GAMMA PARED 1500x750;2179,39
+KF11395;CAMPANA GAMMA PARED 1500x900;2277,05
+KF11397;CAMPANA GAMMA PARED 1500x1100;2314,31
+KF11399;CAMPANA GAMMA PARED 2000x750;2478,8
+KF11402;CAMPANA GAMMA PARED 2000x900;2633
+KF11405;CAMPANA GAMMA PARED 2000x1100;2699,82
+KF11431;CAMPANA GAMMA CENTRAL 1500x1400;3655,87
+KF11432;CAMPANA GAMMA CENTRAL 1500x2100;4065,79
+KF11433;CAMPANA GAMMA CENTRAL 2000x1400;4101,77
+KF11434;CAMPANA GAMMA CENTRAL 2000x2100;4722,43
+KF11435;CAMPANA GAMMA CENTRAL 2500x1400;4758,41
+KF11436;CAMPANA GAMMA CENTRAL 2500x2100;5634,79
+KF11437;CAMPANA GAMMA CENTRAL 3000x1400;6556,14
+KF11438;CAMPANA GAMMA CENTRAL 3000x2100;7579,01
+KF11439;CAMPANA GAMMA CENTRAL 3500x1400;7205,08
+KF11440;CAMPANA GAMMA CENTRAL 3500x2100;8235,65
+KF11441;CAMPANA GAMMA CENTRAL 4000x1400;7650,97
+KF11442;CAMPANA GAMMA CENTRAL 4000x2100;8891,01
+KF11447;CAMPANA SIGMA PARED 1200x750 COMPENSADA;2392,7
+KF11448;CAMPANA SIGMA PARED 1200x900 COMPENSADA;2408,12
+KF11449;CAMPANA SIGMA PARED 1200x1100 COMPENSADA;2460,8
+KF11450;CAMPANA SIGMA PARED 1200x1350 COMPENSADA;2774,35
+KF11451;CAMPANA SIGMA PARED 1500x750 COMPENSADA;2501,92
+KF11452;CAMPANA SIGMA PARED 1500x900 COMPENSADA;2630,43
+KF11453;CAMPANA SIGMA PARED 1500x1100 COMPENSADA;2726,8
+KF11454;CAMPANA SIGMA PARED 1500x1350 COMPENSADA;3127,73
+KF11455;CAMPANA SIGMA PARED 2000x750 COMPENSADA;3012,08
+KF11456;CAMPANA SIGMA PARED 2000x900 COMPENSADA;3141,86
+KF11457;CAMPANA SIGMA PARED 2000x1100 COMPENSADA;3211,25
+KF11458;CAMPANA SIGMA PARED 2000x1350 COMPENSADA;3698,27
+KF11459;CAMPANA SIGMA PARED 2500x750 COMPENSADA;3423,28
+KF11460;CAMPANA SIGMA PARED 2500x900 COMPENSADA;3680,28
+KF11461;CAMPANA SIGMA PARED 2500x1100 COMPENSADA;3714,98
+KF11462;CAMPANA SIGMA PARED 2500x1350 COMPENSADA;4295,8
+KF11463;CAMPANA SIGMA PARED 3000x750 COMPENSADA;4573,37
+KF11464;CAMPANA SIGMA PARED 3000x900 COMPENSADA;4876,64
+KF11465;CAMPANA SIGMA PARED 3000x1100 COMPENSADA;4924,18
+KF11466;CAMPANA SIGMA PARED 3000x1350 COMPENSADA;5652,79
+KF11467;CAMPANA SIGMA PARED 4000x750 COMPENSADA;5891,8
+KF11468;CAMPANA SIGMA PARED 4000x900 COMPENSADA;6139,81
+KF11469;CAMPANA SIGMA PARED 4000x1100 COMPENSADA;6264,45
+KF11470;CAMPANA SIGMA PARED 4000x1350 COMPENSADA;7201,23
+KF11471;CAMPANA SIGMA PARED 5000x750 COMPENSADA;6401,95
+KF11472;CAMPANA SIGMA PARED 5000x900 COMPENSADA;6914,68
+KF11473;CAMPANA SIGMA PARED 5000x1100 COMPENSADA;6958,37
+KF11474;CAMPANA SIGMA PARED 5000x1350 COMPENSADA;8045,49
+KF11491;CAMPANA SIGMA CENTRAL 1500x1400 COMPENSADA;4178,87
+KF11492;CAMPANA SIGMA CENTRAL 1500x2100 COMPENSADA;4633,76
+KF11493;CAMPANA SIGMA CENTRAL 2000x1400 COMPENSADA;5078,38
+KF11494;CAMPANA SIGMA CENTRAL 2000x2100 COMPENSADA;5578,26
+KF11495;CAMPANA SIGMA CENTRAL 2500x1400 COMPENSADA;5507,58
+KF11496;CAMPANA SIGMA CENTRAL 2500x2100 COMPENSADA;6309,43
+KF11497;CAMPANA SIGMA CENTRAL 3000x1400 COMPENSADA;7612,42
+KF11498;CAMPANA SIGMA CENTRAL 3000x2100 COMPENSADA;8329,46
+KF11499;CAMPANA SIGMA CENTRAL 3500x1400 COMPENSADA;8510,65
+KF11500;CAMPANA SIGMA CENTRAL 3500x2100 COMPENSADA;9275,23
+KF11501;CAMPANA SIGMA CENTRAL 4000x1400 COMPENSADA;9408,87
+KF11502;CAMPANA SIGMA CENTRAL 4000x2100 COMPENSADA;10219,71
+KF11503;CAMPANA SIGMA CENTRAL 5000x1400 COMPENSADA;10267,28
+KF11504;CAMPANA SIGMA CENTRAL 5000x2100 COMPENSADA;11682,06
+KF11750;CAMPANA OMNICRON PARED 1200X1200;4277,54
+KF11751;CAMPANA OMNICRON PARED 1200X1500;4874,29
+KF11752;CAMPANA OMNICRON PARED 1500X1200;4807,84
+KF11753;CAMPANA OMNICRON PARED 1500X1500;5145,08
+KF11754;CAMPANA OMNICRON PARED 2000X1200;5536,23
+KF11755;CAMPANA OMNICRON PARED 2000X1500;6168,08
+KF11758;CAMPANA OMNICRON PARED 2500X1200;6265,87
+KF11759;CAMPANA OMNICRON PARED 2500X1500;6793,66
+KF11760;CAMPANA OMNICRON PARED 3000X1200;8057,37
+KF11761;CAMPANA OMNICRON PARED 3000X1500;8736,86
+KF11762;CAMPANA OMNICRON PARED 3500X1200;9140,54
+KF11763;CAMPANA OMNICRON PARED 3500X1500;10253,81
+KF11764;CAMPANA OMNICRON PARED 4000X1200;10397,97
+KF11765;CAMPANA OMNICRON PARED 4000X1500;11517,51
+KF11768;CAMPANA OMNICRON PARED 4500X1200;11132,63
+KF11769;CAMPANA OMNICRON PARED 4500X1500;12143,09
+KF11772;CAMPANA OMNICRON PARED 5000X1200;11866,03
+KF11773;CAMPANA OMNICRON PARED 5000X1500;12768,68
+KF11775;CAMPANA OMNICRON CENTRAL 1200X2400;8116,29
+KF11776;CAMPANA OMNICRON CENTRAL 1200X3000;9227,05
+KF11777;CAMPANA OMNICRON CENTRAL 1500X2400;9176,9
+KF11778;CAMPANA OMNICRON CENTRAL 1500X3000;9769,89
+KF11779;CAMPANA OMNICRON CENTRAL 2000X2400;10632,42
+KF11780;CAMPANA OMNICRON CENTRAL 2000X3000;11815,88
+KF11783;CAMPANA OMNICRON CENTRAL 2500X2400;12091,69
+KF11784;CAMPANA OMNICRON CENTRAL 2500X3000;13067,05
+KF11785;CAMPANA OMNICRON CENTRAL 3000X2400;15674,7
+KF11786;CAMPANA OMNICRON CENTRAL 3000X3000;16953,44
+KF11787;CAMPANA OMNICRON CENTRAL 3500X2400;17841,05
+KF11788;CAMPANA OMNICRON CENTRAL 3500X3000;19987,34
+KF11789;CAMPANA OMNICRON CENTRAL 4000X2400;20355,92
+KF11790;CAMPANA OMNICRON CENTRAL 4000X3000;22695,27
+KF11793;CAMPANA OMNICRON CENTRAL 4500X2400;22705,3
+KF11794;CAMPANA OMNICRON CENTRAL 4500X3000;23764,66
+KF11797;CAMPANA OMNICRON CENTRAL 5000X2400;23512,67
+KF11798;CAMPANA OMNICRON CENTRAL 5000X3000;25276,59
+KF11810;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 2000X1500MM;6129,53
+KF11811;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 2000X2000MM;6567,72
+KF11812;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 2000X2800MM;7684,38
+KF11813;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 2500X1500MM;7279,6
+KF11814;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 2500X2000MM;7791,04
+KF11815;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 2500X2800MM;8948,85
+KF11816;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 3000X1500MM;8856,31
+KF11817;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 3000X2000MM;9419,15
+KF11818;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 3000X2800MM;10769,7
+KF11819;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 3500X1500MM;10192,75
+KF11820;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 3500X2000MM;10818,53
+KF11821;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 3500X2800MM;12271,9
+KF11822;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 4000X1500MM;11529,14
+KF11823;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 4000X2000MM;12219,19
+KF11824;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 4000X2800MM;13774,06
+KF11825;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 5000X1500MM;13829,32
+KF11826;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 5000X2000MM;14664,57
+KF11827;CAMPANA REVERSIBLE CENTRAL COMPENSADA LAMBDA-C 5000X2800MM;16489,29
+KF11831;CAMPANA REVERSIBLE DOBLE COLECTOR KAPPA 2000X2000MM;4847,07
+KF11832;CAMPANA REVERSIBLE DOBLE COLECTOR KAPPA 2000x2800mm;6069,12
+KF11833;CAMPANA REVERSIBLE DOBLE COLECTOR KAPPA 2500X2000MM;5980,47
+KF11834;CAMPANA REVERSIBLE DOBLE COLECTOR KAPPA 2500X2800MM;7471,07
+KF11835;CAMPANA REVERSIBLE DOBLE COLECTOR KAPPA 3000X2000MM;7027,74
+KF11836;CAMPANA REVERSIBLE DOBLE COLECTOR KAPPA 3000X2800MM;8756,08
+KF11837;CAMPANA REVERSIBLE DOBLE COLECTOR KAPPA 3500X2000MM;7902,85
+KF11838;CAMPANA REVERSIBLE DOBLE COLECTOR KAPPA 3500X2800MM;9740,4
+KF11839;CAMPANA REVERSIBLE DOBLE COLECTOR KAPPA 4000X2000MM;8777,93
+KF11840;CAMPANA REVERSIBLE DOBLE COLECTOR KAPPA 4000X2800MM;10678,46
+KF11841;CAMPANA REVERSIBLE DOBLE COLECTOR COMPENSADA KAPPA 2000X2000MM;7187,08
+KF11842;CAMPANA REVERSIBLE DOBLE COLECTOR COMPENSADA KAPPA 2000X2800MM;8218,96
+KF11843;CAMPANA REVERSIBLE DOBLE COLECTOR COMPENSADA KAPPA 2500X2000MM;8770,22
+KF11844;CAMPANA REVERSIBLE DOBLE COLECTOR COMPENSADA KAPPA 2500X2800MM;9949,88
+KF11845;CAMPANA REVERSIBLE DOBLE COLECTOR COMPENSADA KAPPA 3000X2000MM;9964,01
+KF11846;CAMPANA REVERSIBLE DOBLE COLECTOR COMPENSADA KAPPA 3000X2800MM;11018,99
+KF11847;CAMPANA REVERSIBLE DOBLE COLECTOR COMPENSADA KAPPA 3500X2000MM;11225,9
+KF11848;CAMPANA REVERSIBLE DOBLE COLECTOR COMPENSADA KAPPA 3500X2800MM;13211,22
+KF11849;CAMPANA REVERSIBLE DOBLE COLECTOR COMPENSADA KAPPA 4000X2000MM;12487,76
+KF11851;CAMPANA DELTA PARED 1200X1100 INDUCTORA;3754,82
+KF11853;CAMPANA DELTA PARED 1500X1100 INDUCTORA;4121,05
+KF11855;CAMPANA DELTA PARED 2000X900 INDUCTORA;4992,29
+KF11857;CAMPANA DELTA PARED 2500X900 INDUCTORA;5963,76
+KF11859;CAMPANA DELTA PARED 3000X750 INDUCTORA;7483,94
+KF11861;CAMPANA DELTA PARED 4000X900 INDUCTORA;9227,71
+KF11863;CAMPANA DELTA PARED 5000X900 INDUCTORA;11169,36
+KF11866;CAMPANA DELTA CENTRAL 1500X2100 INDUCTORA;7629,15
+KF11867;CAMPANA DELTA CENTRAL 2000X1400 INDUCTORA;8238,24
+KF11868;CAMPANA DELTA CENTRAL 2000X2100 INDUCTORA;9241,84
+KF11869;CAMPANA DELTA CENTRAL 2500X1400 INDUCTORA;9897,2
+KF11870;CAMPANA DELTA CENTRAL 2500X2100 INDUCTORA;11039,58
+KF11871;CAMPANA DELTA CENTRAL 3000X1400 INDUCTORA;12401,7
+KF11872;CAMPANA DELTA CENTRAL 3000X2100 INDUCTORA;13855,05
+KF11873;CAMPANA DELTA CENTRAL 3500X1400 INDUCTORA;13572,34
+KF11874;CAMPANA DELTA CENTRAL 3500X2100 INDUCTORA;15469,03
+KF11875;CAMPANA DELTA CENTRAL 4000X1400 INDUCTORA;15111,8
+KF11876;CAMPANA DELTA CENTRAL 4000X2100 INDUCTORA;17081,73
+KF11877;CAMPANA DELTA CENTRAL 4500X1400 INDUCTORA;16770,75
+KF11878;CAMPANA DELTA CENTRAL 4500X2100 INDUCTORA;18879,46
+KF11879;CAMPANA OMEGA 1000X1000 PARA VAHOS;1225,81
+KF11880;CAMPANA OMEGA 1000X1200 PARA VAHOS;1292,48
+KF11881;CAMPANA OMEGA 1200X1000 PARA VAHOS;1362,78
+KF11882;CAMPANA OMEGA 1200X1200 PARA VAHOS;1420,67
+KF11883;CAMPANA OMEGA 1500X1000 PARA VAHOS;1586,42
+KF11884;CAMPANA OMEGA 1500X1200 PARA VAHOS;1681,28
+KF11885;CAMPANA OMEGA 1500X1500 PARA VAHOS;1893,79
+KF11886;CAMPANA OMEGA 2000X1000 PARA VAHOS;1828,58
+KF11887;CAMPANA OMEGA 2000X1200 PARA VAHOS;1977,03
+KF11888;CAMPANA OMEGA 2000X1500 PARA VAHOS;2196,21
+KF11889;CAMPANA OMEGA 2200X1000 PARA VAHOS;1990,49
+KF11890;CAMPANA OMEGA 2200X1200 PARA VAHOS;2115,08
+KF11891;CAMPANA OMEGA 2200X1500 PARA VAHOS;2358,69
+KF11892;CAMPANA OMEGA 2500X1000 PARA VAHOS;2230,79
+KF11893;CAMPANA OMEGA 2500X1200 PARA VAHOS;2322,32
+KF11894;CAMPANA OMEGA 2500X1500 PARA VAHOS;2629,6
+KF11895;CAMPANA REVERSIBLE LAMBDA 1000X1000MM;1777,18
+KF11896;CAMPANA REVERSIBLE LAMBDA 1000X1200MM;1874,84
+KF11897;CAMPANA REVERSIBLE LAMBDA 1000X1500MM;2076,59
+KF11899;CAMPANA REVERSIBLE LAMBDA 1200X1000MM;1973,78
+KF11920;CAMPANA REVERSIBLE LAMBDA 1200X1200MM;2081,72
+KF11921;CAMPANA REVERSIBLE LAMBDA 1200X1500MM;2301,46
+KF11922;CAMPANA REVERSIBLE LAMBDA 1200X2000MM;2639,43
+KF11923;CAMPANA REVERSIBLE LAMBDA 1500X1000MM;2368,28
+KF11924;CAMPANA REVERSIBLE LAMBDA 1500X1200MM;2494,21
+KF11925;CAMPANA REVERSIBLE LAMBDA 1500X1500MM;2739,65
+KF11926;CAMPANA REVERSIBLE LAMBDA 1500X2000MM;3116,16
+KF11927;CAMPANA REVERSIBLE LAMBDA 2000X1000MM;2904,13
+KF11928;CAMPANA REVERSIBLE LAMBDA 2000X1200MM;3060,91
+KF11929;CAMPANA REVERSIBLE LAMBDA 2000X1500MM;3330,76
+KF11930;CAMPANA REVERSIBLE LAMBDA 2000X2000MM;3770,23
+KF11931;CAMPANA REVERSIBLE LAMBDA 2200X1000MM;3136,72
+KF11932;CAMPANA REVERSIBLE LAMBDA 2200X1200MM;3303,77
+KF11933;CAMPANA REVERSIBLE LAMBDA 2200X1500MM;3591,62
+KF11934;CAMPANA REVERSIBLE LAMBDA 2200X2000MM;4065,79
+KF11935;CAMPANA REVERSIBLE LAMBDA 2500X1000MM;3599,33
+KF11936;CAMPANA REVERSIBLE LAMBDA 2500X1200MM;3784,37
+KF11937;CAMPANA REVERSIBLE LAMBDA 2500X1500MM;4097,91
+KF11938;CAMPANA REVERSIBLE LAMBDA 2500X2000MM;4610,63
+KF11939;CAMPANA REVERSIBLE LAMBDA 3000X1000MM;4281,67
+KF11940;CAMPANA REVERSIBLE LAMBDA 3000X1200MM;4493,7
+KF11941;CAMPANA REVERSIBLE LAMBDA 3000X1500MM;4852,21
+KF11942;CAMPANA REVERSIBLE LAMBDA 3000X2000MM;5438,19
+KF11943;CAMPANA REVERSIBLE LAMBDA 4000X1000MM;5354,66
+KF11944;CAMPANA REVERSIBLE LAMBDA 4000X1200MM;5629,66
+KF11945;CAMPANA REVERSIBLE LAMBDA 4000X1500MM;6035,72
+KF11946;CAMPANA REVERSIBLE LAMBDA 4000X2000MM;6746,33
+KF11950;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 1200X1000MM;2641,87
+KF11951;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 1200X1200MM;2832,31
+KF11952;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 1200X1500MM;3047,54
+KF11953;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 1200X2000MM;3463,89
+KF11954;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 1500X1000MM;3042,92
+KF11955;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 1500X1200MM;3327,81
+KF11956;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 1500X1500MM;3569
+KF11957;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 1500X2000MM;3945,39
+KF11958;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 2000X1000MM;3798,9
+KF11959;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 2000X1200MM;4036,74
+KF11960;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 2000X1500MM;4301,34
+KF11961;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 2000X2000MM;4816,63
+KF11962;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 2500X1000MM;4646,87
+KF11963;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 2500X1200MM;4912,5
+KF11964;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 2500X1500MM;5220,77
+KF11965;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 2500X2000MM;5807,64
+KF11966;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 3000X1000MM;5639,94
+KF11967;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 3000X1200MM;6171,68
+KF11968;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 3000X1500MM;6523,76
+KF11969;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 3000X2000MM;7111,78
+KF11970;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 4000X1000MM;7589,44
+KF11971;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 4000X1200MM;7706,23
+KF11972;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 4000X1500MM;7988,29
+KF11973;CAMPANA REVERSIBLE COMPENSADA LAMBDA-C 4000X2000MM;8854,26
+KF11975;CAMPANA REVERSIBLE CENTRAL LAMBDA 1500X1500MM;3410,43
+KF11976;CAMPANA REVERSIBLE CENTRAL LAMBDA 1500X2000MM;3785,65
+KF11977;CAMPANA REVERSIBLE CENTRAL LAMBDA 2000X1500MM;4360,05
+KF11978;CAMPANA REVERSIBLE CENTRAL LAMBDA 2000X2000MM;4798,24
+KF11979;CAMPANA REVERSIBLE CENTRAL LAMBDA 2000X2800MM;5936,78
+KF11980;CAMPANA REVERSIBLE CENTRAL LAMBDA 2500X1500;5173,47
+KF11981;CAMPANA REVERSIBLE CENTRAL LAMBDA 2500X2000MM;5686,2
+KF11982;CAMPANA REVERSIBLE CENTRAL LAMBDA 2500X2800MM;6825,99
+KF11983;CAMPANA REVERSIBLE CENTRAL LAMBDA 3000X1500MM;6090,98
+KF11984;CAMPANA REVERSIBLE CENTRAL LAMBDA 3000X2000MM;6655,1
+KF11985;CAMPANA REVERSIBLE CENTRAL LAMBDA 3000X2800MM;8496,51
+KF11986;CAMPANA REVERSIBLE CENTRAL LAMBDA 3500X1500MM;7040,6
+KF11987;CAMPANA REVERSIBLE CENTRAL LAMBDA 3500X2000MM;7667,68
+KF11988;CAMPANA REVERSIBLE CENTRAL LAMBDA 3500X2800MM;9856,05
+KF11989;CAMPANA REVERSIBLE CENTRAL LAMBDA 4000X1500MM;7990,23
+KF11990;CAMPANA REVERSIBLE CENTRAL LAMBDA 4000X2000MM;8680,28
+KF11991;CAMPANA REVERSIBLE CENTRAL LAMBDA 4000X2800MM;10859,65
+KF11992;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X1500MM;9618,33
+KF11993;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X2000MM;10453,61
+KF11994;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X2800MM;12784,6`;
+
+        // --- 2. LÓGICA DE LA APLICACIÓN ---
+        let catalogo = [];
+        let modelosAgrupados = {};
+        let productoSeleccionado = null;
+        let caudalExtraccionGlobal = 0; 
+
+        const selectModelo = document.getElementById('modeloCampana');
+        const selectMedida = document.getElementById('medidaCampana');
+        const btnCalcular = document.getElementById('btnCalcular');
+        const inputAltura = document.getElementById('altura');
+        const inputLongitud = document.getElementById('longitud');
+        const inputPiezas = document.getElementById('piezas');
+        const selectDiametro = document.getElementById('selectDiametro');
+        const contenedorPerdida = document.getElementById('contenedorPerdida'); // Instancia para ocultar
+
+        function procesarCatalogo(csvDataStr) {
+            const lineas = csvDataStr.split('\n');
+            for(let i = 1; i < lineas.length; i++) {
+                const linea = lineas[i].trim();
+                if(!linea) continue;
+
+                const partes = linea.split(';');
+                if(partes.length < 3) continue;
+
+                const cod = partes[0].trim();
+                const desc = partes[1].trim();
+                const pvp = partes[2].trim();
+
+                const regexMedida = /(\d+)\s*[xX]\s*(\d+)(?:\s*[xX]\s*(\d+))?/i;
+                const match = desc.match(regexMedida);
+                
+                if(match) {
+                    const L = parseInt(match[1]); 
+                    const W = parseInt(match[2]); 
+                    
+                    const esCentral = desc.toUpperCase().includes('CENTRAL') || desc.toUpperCase().includes('ISLA');
+                    const tipo = esCentral ? 'central' : 'mural';
+                    const perimetro = esCentral ? ((2 * L) + (2 * W)) / 1000 : (L + (2 * W)) / 1000;
+
+                    let esGranProduccion = false;
+                    let esVahos = false;
+                    let porcentajeAportacion = 0;
+                    let textoAportacion = "";
+
+                    const descUpper = desc.toUpperCase();
+                    
+                    if(descUpper.includes('LAMBDA') || descUpper.includes('KAPPA') || descUpper.includes('OMNICRON')) {
+                        esGranProduccion = true;
+                    } else if (descUpper.includes('OMEGA')) {
+                        esVahos = true;
+                    }
+
+                    if(descUpper.includes('DELTA') || descUpper.includes('INDUCTORA')) {
+                        porcentajeAportacion = 0.55;
+                        textoAportacion = "Sistema Inductor (55% de compensación)";
+                    } else if (descUpper.includes('SIGMA') || descUpper.includes('LAMBDA-C') || descUpper.includes('COMPENSADA')) {
+                        porcentajeAportacion = 0.75;
+                        textoAportacion = "Sistema Compensado (75% de compensación)";
+                    }
+
+                    let nombreModelo = desc.substring(0, match.index).trim();
+                    nombreModelo = nombreModelo.replace(/CAMPANA /i, '').replace(/INDUSTRIAL /i, '').replace(/MUNDOFAN /i, '').replace(/MODELO /i, '').replace(/CON CORTINA DE AIRE PERIMETRAL DE PARED /i,'').replace(/CON CORTINA DE AIRE PERIMETRAL CENTRAL /i,'').replace(/MURAL /i,'').trim();
+
+                    const producto = {
+                        codigo: cod,
+                        descripcion: desc,
+                        pvp: pvp,
+                        medidaStr: match[0].toUpperCase(),
+                        tipo: tipo,
+                        perimetro: perimetro,
+                        nombreModelo: nombreModelo,
+                        esGranProduccion: esGranProduccion,
+                        esVahos: esVahos,
+                        porcentajeAportacion: porcentajeAportacion,
+                        textoAportacion: textoAportacion
+                    };
+
+                    catalogo.push(producto);
+
+                    if(!modelosAgrupados[nombreModelo]) {
+                        modelosAgrupados[nombreModelo] = [];
+                    }
+                    modelosAgrupados[nombreModelo].push(producto);
+                }
+            }
+        }
+
+        function inicializarUI() {
+            selectModelo.disabled = false;
+            selectModelo.innerHTML = '<option value="">-- Selecciona una familia/modelo --</option>';
+            Object.keys(modelosAgrupados).sort().forEach(modelo => {
+                const option = document.createElement('option');
+                option.value = modelo;
+                option.textContent = modelo;
+                selectModelo.appendChild(option);
+            });
+        }
+
+        selectModelo.addEventListener('change', function() {
+            const modeloStr = this.value;
+            selectMedida.innerHTML = '<option value="">-- Selecciona una medida --</option>';
+            document.getElementById('productCard').classList.remove('active');
+            document.getElementById('infoCoccion').classList.remove('active');
+            document.getElementById('infoAportacion').classList.remove('active');
+            document.getElementById('resultados').classList.remove('active');
+            
+            btnCalcular.disabled = true;
+            inputAltura.disabled = true;
+            inputLongitud.disabled = true;
+            inputPiezas.disabled = true;
+            productoSeleccionado = null;
+
+            if(modeloStr) {
+                selectMedida.disabled = false;
+                modelosAgrupados[modeloStr].forEach((prod, index) => {
+                    const option = document.createElement('option');
+                    option.value = index; 
+                    option.textContent = prod.medidaStr + (prod.tipo === 'central' ? ' (CENTRAL)' : ' (MURAL)');
+                    selectMedida.appendChild(option);
+                });
+            } else {
+                selectMedida.disabled = true;
+            }
+        });
+
+        selectMedida.addEventListener('change', function() {
+            const index = this.value;
+            if(index !== "") {
+                const modeloStr = selectModelo.value;
+                productoSeleccionado = modelosAgrupados[modeloStr][index];
+                
+                document.getElementById('prodCode').textContent = productoSeleccionado.codigo;
+                document.getElementById('prodDesc').textContent = productoSeleccionado.descripcion;
+                document.getElementById('prodTipo').textContent = productoSeleccionado.tipo === 'central' ? 'Isla / Central' : 'Mural / Pared';
+                document.getElementById('prodPerimetro').textContent = productoSeleccionado.perimetro.toFixed(2);
+                document.getElementById('prodPvp').textContent = productoSeleccionado.pvp;
+                
+                document.getElementById('productCard').classList.add('active');
+                
+                inputAltura.disabled = false;
+                inputLongitud.disabled = false;
+                inputPiezas.disabled = false;
+                btnCalcular.disabled = false;
+
+                const infoCoccion = document.getElementById('infoCoccion');
+                const txtCoccion = document.getElementById('txtCoccion');
+                
+                if(productoSeleccionado.esGranProduccion) {
+                    txtCoccion.innerHTML = "Equipamiento de <b>Gran Producción</b> (K=0.35 m/s).";
+                    infoCoccion.classList.add('active');
+                } else if(productoSeleccionado.esVahos) {
+                    txtCoccion.innerHTML = "Equipamiento para <b>Vahos/Lavado</b> (Campana sin filtros).";
+                    infoCoccion.classList.add('active');
+                } else {
+                    infoCoccion.classList.remove('active');
+                }
+
+                const infoAportacion = document.getElementById('infoAportacion');
+                const txtAportacion = document.getElementById('txtAportacion');
+                if(productoSeleccionado.porcentajeAportacion > 0) {
+                    txtAportacion.innerHTML = productoSeleccionado.textoAportacion;
+                    infoAportacion.classList.add('active');
+                } else {
+                    infoAportacion.classList.remove('active');
+                }
+
+            } else {
+                document.getElementById('productCard').classList.remove('active');
+                btnCalcular.disabled = true;
+                productoSeleccionado = null;
+            }
+        });
+
+        function obtenerDiametroComercial(calculadoEnMilimetros) {
+            for (let i = 0; i < diametrosEstandar.length; i++) {
+                if (diametrosEstandar[i] >= calculadoEnMilimetros) {
+                    return diametrosEstandar[i];
+                }
+            }
+            return Math.ceil(calculadoEnMilimetros);
+        }
+
+        function actualizarCalculosSecundarios() {
+            if(!caudalExtraccionGlobal) return;
+
+            const diametroElegidoMM = parseFloat(selectDiametro.value);
+            const longitud = parseFloat(inputLongitud.value) || 0;
+            const piezas = parseInt(inputPiezas.value) || 0;
+
+            const caudalSegundos = caudalExtraccionGlobal / 3600;
+            const radioM = (diametroElegidoMM / 2) / 1000;
+            const areaRealM2 = Math.PI * (radioM * radioM);
+            const velocidadReal = caudalSegundos / areaRealM2;
+
+            const spanVelocidad = document.getElementById('resVelocidad');
+            const alertaVelocidad = document.getElementById('alertaVelocidad');
+            
+            spanVelocidad.innerText = velocidadReal.toFixed(1) + ' m/s';
+
+            // --- LÓGICA DE VALIDACIÓN DE VELOCIDAD ---
+            if (velocidadReal < 5.0 || velocidadReal > 16.0) {
+                // Zona ROJA (No viable) -> Oculta los cálculos de pérdida
+                spanVelocidad.style.color = 'var(--accent-red)';
+                alertaVelocidad.innerText = "Esta instalación no es viable modifique datos";
+                alertaVelocidad.style.color = 'var(--accent-red)';
+                contenedorPerdida.style.display = 'none'; 
+            } else {
+                // Zonas válidas -> Mostrar y calcular la pérdida
+                contenedorPerdida.style.display = 'block';
+
+                if (velocidadReal >= 8.0 && velocidadReal <= 12.0) {
+                    // Zona VERDE (Óptima)
+                    spanVelocidad.style.color = 'var(--success-green)';
+                    alertaVelocidad.innerText = "la instalación es apta";
+                    alertaVelocidad.style.color = 'var(--success-green)';
+                } else {
+                    // Zona NARANJA (Entre 5-8 o 12-16)
+                    spanVelocidad.style.color = 'var(--warning-orange)';
+                    alertaVelocidad.innerText = "Instalación no recomendada";
+                    alertaVelocidad.style.color = 'var(--warning-orange)';
+                }
+
+                // Cálculo Físico de Pérdida de Carga 
+                const factorVelocidad = Math.pow(velocidadReal / 9, 2);
+
+                const perdidaFiltros = productoSeleccionado.esVahos ? 50 : 40; 
+                const perdidaConducto = (longitud * 1.5) * factorVelocidad; 
+                const perdidaPiezas = (piezas * 10) * factorVelocidad; 
+                const perdidaSombrerete = 30 * factorVelocidad; 
+                
+                const perdidaBase = perdidaFiltros + perdidaConducto + perdidaPiezas + perdidaSombrerete;
+                const perdidaTotal = perdidaBase * 1.10; 
+
+                document.getElementById('resPerdida').innerText = Math.round(perdidaTotal) + ' Pa';
+                document.getElementById('resDesglosePerdida').innerText = 
+                    `(Filtros: ${perdidaFiltros}Pa + Tubo: ${Math.round(perdidaConducto)}Pa + Codos/Tes: ${Math.round(perdidaPiezas)}Pa + Sombrerete: ${Math.round(perdidaSombrerete)}Pa) + 10% margen`;
+            }
+        }
+
+        document.getElementById('calcForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if(!productoSeleccionado) return;
+
+            const altura = parseFloat(inputAltura.value);
+            
+            let K = 0.30; 
+            if (productoSeleccionado.esGranProduccion) {
+                K = 0.35; 
+            } else {
+                K = productoSeleccionado.tipo === 'mural' ? 0.30 : 0.25;
+            }
+
+            caudalExtraccionGlobal = productoSeleccionado.perimetro * altura * K * 3600;
+
+            let caudalAportacion = 0;
+            if(productoSeleccionado.porcentajeAportacion > 0) {
+                caudalAportacion = caudalExtraccionGlobal * productoSeleccionado.porcentajeAportacion;
+                document.getElementById('filaAportacion').style.display = 'flex';
+                document.getElementById('resAportacion').innerText = Math.round(caudalAportacion).toLocaleString('es-ES') + ' m³/h';
+            } else {
+                document.getElementById('filaAportacion').style.display = 'none';
+            }
+
+            const caudalSegundos = caudalExtraccionGlobal / 3600;
+            const areaM2 = caudalSegundos / 9; 
+            const radioM = Math.sqrt(areaM2 / Math.PI);
+            const diametroMatematicoMM = radioM * 2 * 1000;
+            const diametroComercial = obtenerDiametroComercial(diametroMatematicoMM);
+
+            selectDiametro.innerHTML = '';
+            diametrosEstandar.forEach(diam => {
+                const option = document.createElement('option');
+                option.value = diam;
+                option.textContent = 'Ø ' + diam + ' mm';
+                if (diam === diametroComercial) {
+                    option.selected = true;
+                    option.textContent += ' (Óptimo recomendado)';
+                }
+                selectDiametro.appendChild(option);
+            });
+
+            document.getElementById('resExtraccion').innerText = Math.round(caudalExtraccionGlobal).toLocaleString('es-ES') + ' m³/h';
+            
+            document.getElementById('resultados').classList.add('active');
+            actualizarCalculosSecundarios();
+        });
+
+        selectDiametro.addEventListener('change', actualizarCalculosSecundarios);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            procesarCatalogo(csvData);
+            inicializarUI();
+        });
+    </script>
+</body>
+</html>
