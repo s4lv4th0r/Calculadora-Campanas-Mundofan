@@ -169,8 +169,9 @@
     <footer>&copy; 2026 Calculadora Mundofan | Salvador Escoda S.A. | Autoría: <strong>Jordi Salvador Noya</strong></footer>
 
     <script>
-        const diametrosEstandar = [100, 125, 150, 175, 200, 250, 300, 355, 400, 450, 500, 560, 600, 630, 710, 800, 900, 1000, 1120, 1250];
+        const diametrosEstandar = [100, 125, 150, 175, 200, 250, 300, 315, 355, 400, 450, 500, 560, 600, 630, 710, 800];
 
+        // 1. Categorías del catálogo HORECA
         const categoriasHood = [
             { id: "LOW", nombre: "Low Ceiling (Baja Silueta)", desc: "Diseño compacto para locales con techos de poca altura.", mural: true, central: false },
             { id: "STD", nombre: "Standard Mural", desc: "Campanas industriales clásicas para todo tipo de cocinas.", mural: true, central: false },
@@ -621,7 +622,7 @@ KF11994;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X2800MM;12784,6`;
 
                     // Se añade etiqueta del motor al desplegable si lo lleva
                     let medidaConMotor = matchMed[0];
-                    if (qM > 0) { medidaConMotor += ` + Motor ${nNom}`; }
+                    if (qM > 0) { medidaConMotor += ` (+ ${nNom})`; }
 
                     catalogoGlobal.push({
                         idGlobal: i, cod: parts[0], desc: desc, pvp: parts[2], perim: perim,
@@ -727,31 +728,33 @@ KF11994;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X2800MM;12784,6`;
 
             // CHECK 1: PRESIÓN (El límite del ventilador MANDA)
             if (productoSeleccionado.esAuto && pTot > productoSeleccionado.pMotor) {
-                resV.style.color = "red"; alV.textContent = "INSTALACIÓN NO VIABLE (Límite Motor)"; alV.style.color = "red";
-                resP.style.color = "red"; msgP.textContent = `Instalación no viable: supera los ${productoSeleccionado.pMotor} Pa máximos del ventilador`; msgP.style.color = "red";
+                resV.style.color = "var(--accent-red)"; alV.textContent = "INSTALACIÓN NO VIABLE (Límite Motor)"; alV.style.color = "var(--accent-red)";
+                resP.style.color = "var(--accent-red)"; msgP.textContent = `Instalación no viable: supera los ${productoSeleccionado.pMotor} Pa máximos del ventilador`; msgP.style.color = "var(--accent-red)";
                 contP.style.display = "block";
                 return;
             }
 
             // CHECK 2: VELOCIDAD (Si la presión está bien, verificamos m/s)
             if (vel < 6 || vel > 16) {
-                resV.style.color = "red"; alV.textContent = "Instalación no viable (Fuera de 6-16 m/s)"; alV.style.color = "red";
-                resP.style.color = "red"; msgP.textContent = "Modifique diámetro"; msgP.style.color = "red";
+                resV.style.color = "var(--accent-red)"; alV.textContent = "Instalación no viable (Fuera de 6-16 m/s)"; alV.style.color = "var(--accent-red)";
+                resP.style.color = "var(--accent-red)"; msgP.textContent = "Modifique diámetro para calcular Presión"; msgP.style.color = "var(--accent-red)";
                 contP.style.display = "block";
                 return;
             } 
             
+            // LÓGICA NORMAL Y SEMÁFORO
             contP.style.display = "block";
-            resV.style.color = (vel >= 8 && vel <= 11) ? "var(--success-green)" : "var(--warning-orange)";
-            alV.textContent = (vel >= 8 && vel <= 11) ? "Velocidad óptima" : "Velocidad no recomendada";
+            // Ampliado el verde a 12.5 para priorizar tubos más finos
+            resV.style.color = (vel >= 8 && vel <= 12.5) ? "var(--success-green)" : "var(--warning-orange)";
+            alV.textContent = (vel >= 8 && vel <= 12.5) ? "Velocidad óptima" : "Velocidad no recomendada";
             alV.style.color = resV.style.color;
 
             if (pTot > 400) {
-                msgP.textContent = "Instalación no recomendada (Exceso Pa)"; msgP.style.color = "red"; resP.style.color = "red";
+                msgP.textContent = "Instalación no recomendada (Exceso Pa)"; msgP.style.color = "var(--accent-red)"; resP.style.color = "var(--accent-red)";
             } else if (pTot >= 200 && pTot <= 400) {
-                msgP.textContent = "Pérdida de carga alta"; msgP.style.color = "orange"; resP.style.color = "orange";
+                msgP.textContent = "Pérdida de carga alta"; msgP.style.color = "var(--warning-orange)"; resP.style.color = "var(--warning-orange)";
             } else {
-                msgP.textContent = "Pérdida de carga: óptima"; msgP.style.color = "green"; resP.style.color = "green";
+                msgP.textContent = "Pérdida de carga: óptima"; msgP.style.color = "var(--success-green)"; resP.style.color = "var(--success-green)";
             }
         }
 
@@ -763,6 +766,7 @@ KF11994;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X2800MM;12784,6`;
 
             caudalCalculado = productoSeleccionado.esAuto ? productoSeleccionado.qM : qIdeal;
             
+            // Si es auto y el caudal del motor no llega al normativo (Aviso)
             if(productoSeleccionado.esAuto && caudalCalculado < qIdeal) {
                 alert("AVISO DE INGENIERÍA: El ventilador interno (" + caudalCalculado + " m³/h) es insuficiente para captar humos eficientemente a esta altura. Faltan " + Math.round(qIdeal - caudalCalculado) + " m³/h normativos.");
             }
@@ -772,12 +776,15 @@ KF11994;CAMPANA REVERSIBLE CENTRAL LAMBDA 5000X2800MM;12784,6`;
             document.getElementById('labelTubo').textContent = productoSeleccionado.doble ? "Diámetro de CADA tubo:" : "Diámetro Tubo:";
 
             const qRef = productoSeleccionado.doble ? caudalCalculado/2 : caudalCalculado;
+            
+            // BÚSQUEDA DEL TUBO MÁS PEQUEÑO (prioridad coste/espacio)
             let dOpt = null;
             for(let d of diametrosEstandar) {
                 let v = (qRef/3600) / (Math.PI * Math.pow((d/2)/1000, 2));
-                if(v <= 11.0 && v >= 8.0) { dOpt = d; break; }
+                // El primer diámetro que consiga bajar de 12.5 m/s será el elegido
+                if(v <= 12.5) { dOpt = d; break; }
             }
-            if(!dOpt) dOpt = diametrosEstandar.find(d => ((qRef/3600)/(Math.PI*Math.pow((d/2)/1000,2))) <= 11) || 630;
+            if(!dOpt) dOpt = diametrosEstandar[diametrosEstandar.length - 1];
 
             const selD = document.getElementById('selectDiametro');
             selD.innerHTML = '';
